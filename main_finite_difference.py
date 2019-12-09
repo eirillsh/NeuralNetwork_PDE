@@ -4,14 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # -----SETTINGS FOR PLOTS-----
-line_width = 2
+line_width = 3
 font = 15
 path = "Figures/finite_"
 
 
 color_dx01 = 'crimson'
 color_dx001 = 'teal'
-color_exact = 'grey'
+color_exact = 'darkgray'
 
 show = False
 # ---------------------------
@@ -66,7 +66,7 @@ else:
 	plt.close()
 
 # Plotting t2
-plt.plot(x_e, u_t2, color=color_exact, linewidth=line_width)
+plt.plot(x_e, u_t2, color=color_exact, label="exact", linewidth=line_width)
 plt.plot(x_001, u_t2_001, "--", color=color_dx001, label=r"$\Delta x = 0.01$", linewidth=line_width)
 plt.plot(x_01, u_t2_01, "--", color=color_dx01, label=r"$\Delta x = 0.1$", linewidth=line_width)
 plt.legend(fontsize=font)
