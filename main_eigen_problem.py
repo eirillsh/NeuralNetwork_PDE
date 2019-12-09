@@ -7,7 +7,7 @@ def test(A):
 	NN = EigenProblem(A, [7]*N, ["sigmoid"]*N)
 	eta = 0.05
 	epoch = 1000
-	loss = NN.solve(eta, epoch, num_epochs=50)
+	loss = NN.solve(eta, epoch, num_epochs=10)
 	print(f"EIGENVALUE  {NN.E:15.8f}  {loss:20.1e}")
 	E, X = np.linalg.eigh(A)
 	print(E)
