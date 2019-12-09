@@ -36,9 +36,13 @@ class EigenProblem(NeuralNetwork):
 		E = (xT@self.A@x)/(xT@x)
 		return E[0][0]
 
-	# MSE : lim{t-> inf} x_t = -x + f(x)
+
 	@tf.function
 	def loss(self):
+		'''
+		Mean Squared Error, evaluating :
+					 lim{t-> inf} x_t = -x + f(x)
+		'''
 		with tf.GradientTape(watch_accessed_variables=False) as Dt:
 			Dt.watch(self.t)
 			xT = self(self.t)
