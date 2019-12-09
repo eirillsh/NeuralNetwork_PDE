@@ -14,6 +14,8 @@ color_dx001 = 'teal'
 color_exact = 'darkgray'
 
 show = False
+T1 = 0.05
+T2 = 0.5
 # ---------------------------
 
 u_e = HeatFlow(1, 1, 1)
@@ -21,8 +23,6 @@ x_e = np.linspace(0, 1, 300)
 u0 = u_e.F
 pde = FiniteDifference(1, u0, 1)
 
-T1 = 0.05
-T2 = 0.5
 
 x_01, t1, u_t1_01 = pde.solve(T1, 0.1, sample="end")
 x_01, t2, u_t2_01 = pde.solve(T2, 0.1, sample="end")
