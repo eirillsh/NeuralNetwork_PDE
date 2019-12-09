@@ -66,16 +66,14 @@ class FiniteDifference:
 		N = self.get_N(T, dt, self.dx)
 		self.dt = T/N
 
-		#inital condition
+		#inital condition & boundary condition
 		u = self.u0(x)
 
-		# boundary condition
-		u[0], u[-1] = self.ut_pos0, self.ut_posL
 
 		# iterative scheme
 		const = const = self.get_constant()
 		for i in range(N):
-			u[1:M] += const*(u[2:M+1] - 2*u[1:M] + u[:M-1])
+			u[1:M] = u[1:M] + const*(u[2:M+1] - 2*u[1:M] + u[:M-1])
 		return x, T, u
 
 	# solve PDE and return u for some time steps
@@ -99,7 +97,7 @@ class FiniteDifference:
 		for i in range(samples - 1):
 			u[i+1, 1:M] = u[i, 1:M] + const*(u[i, 2:M+1] - 2*u[i, 1:M] + u[i, :M-1])
 			for j in range(skip):
-				u[i+1, 1:M] += const*(u[i+1, 2:M+1] - 2*u[i+1, 1:M] + u[i+1, :M-1])
+				u[i+1, 1:M] = u[i+1, 1:M] + const*(u[i+1, 2:M+1] - 2*u[i+1, 1:M] + u[i+1, :M-1])
 		return x, t, u
 
 	# get x interval and length 
@@ -112,13 +110,13 @@ class FiniteDifference:
 	# compute number of time steps
 	def get_N(self, T, dt, dx):
 		if dt == "dt":
-			dt = dx*dx/4
+			dt = self.c*self.c*dx*dx/4
 		N = int(T/dt) 
 		return N
 
 	# get constant used in PDE
 	def get_constant(self):
-		return self.dt*(self.c/self.dx)**2
+		return self.dt/(self.c*self.dx)**2
 
 
 

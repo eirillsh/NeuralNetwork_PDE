@@ -1,5 +1,4 @@
-import numpy as np
-
+import autograd.numpy as np
 
 class HeatFlow:
 	''' 
@@ -14,7 +13,7 @@ class HeatFlow:
 		self.L = L
 		self.n = n
 		self.w =  np.pi*n/L
-		self.ll = (c*self.w)**2
+		self.ll = (self.w/c)**2
 
 	# u(x, t) = F(x)G(t)
 	def __call__(self, x, t):

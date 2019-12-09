@@ -3,7 +3,6 @@ import numpy as np
 from neural_network import NeuralNetwork
 
 
-
 class HeatFlowSolver(NeuralNetwork):
 	''' 
 	Inherits form NerualNetwork, built on keras (tensorflow) layers.
