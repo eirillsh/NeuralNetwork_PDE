@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, InputLayer 
+from tensorflow.keras.layers import Dense, InputLayer, SimpleRNN 
 from tensorflow.keras.optimizers import SGD as GradientDecent
 from time import time
 import os
@@ -15,7 +15,7 @@ class NeuralNetwork(tf.keras.Sequential):
 		super().__init__()
 	
 	# create layers for feed forward neural network
-	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions):
+	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		'''
 		create layers for feed forward neural network
 		'''
@@ -26,16 +26,22 @@ class NeuralNetwork(tf.keras.Sequential):
 		for neurons, f in zip(num_neurons, activation_functions):
 			self.add(Dense(neurons, activation=f, dtype=dtype))
 		# adding output layer
-		self.add(Dense(size_output, dtype=dtype))
+		self.add(Dense(size_output, dtype=dtype, activation=output_activaton))
 
 	# create layers for recurrent neural network
-	def add_recurrent_layers(self):
-		''' 		ANDERS, LES MEG
-		Vi kan se om vi kan prøve å få til dette. 
-		Jeg har prøvd litt, men fikk ikke helt til...
-		tensorflow har recurrent layers som vi burde kunne få til å bruke
+	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions):
 		'''
-		pass
+		create layers for feed forward neural network
+		'''
+		dtype = 'float64'					#default is float32
+		# adding input layer
+		self.add(InputLayer(input_shape=(features,), dtype=dtype))
+		# adding hidden layers
+		for neurons, f in zip(num_neurons, activation_functions):
+			self.add(SimpleRNN(neurons, activation=f, dtype=dtype))
+		# adding output layer
+		self.add(SimmpleRNN(size_output, dtype=dtype))
+		print("Klarte å opprette!")
 
 	@tf.function
 	def loss(self):

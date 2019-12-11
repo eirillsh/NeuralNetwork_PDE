@@ -17,6 +17,7 @@ class EigenProblem(NeuralNetwork):
 		self.I = tf.linalg.LinearOperatorIdentity(n, dtype='float64').to_dense()
 		self.set_t(t)										# default t-value (should be inf)
 		# Metoden under brude nok heller vært add_recurrent_layers....	
+		#self.add_recurrent_layers(1, n, num_neurons, activation_functions)
 		self.add_feed_forward_layers(1, n, num_neurons, activation_functions)
 
 	# normalized eigenvector
@@ -35,6 +36,10 @@ class EigenProblem(NeuralNetwork):
 		x = tf.transpose(xT)
 		E = (xT@self.A@x)/(xT@x)
 		return E[0][0]
+
+	def MSE(self, exact_function):
+		u_e = u_e(self.x, self.t)
+
 
 
 	@tf.function

@@ -9,15 +9,15 @@ font = 15
 path = "Figures/PDE_NN_"
 
 
-color_NN1 = 'maroon'
-color_NN2 = 'gold'
-color_NN3 = 'darkgreen'
+color_NN1 = 'orangered'
+color_NN2 = 'cornflowerblue'
+color_NN3 = 'forestgreen'
 color_exact = 'darkgray'
 
 show = True
 t1 = 0.05
 t2 = 0.5
-labels = ["layers = 1", "layers = 2", "layers = 3"]
+labels = ["NN1", "NN2", "NN3"]		# husk å fikse når NN-ene er bestemt
 # ---------------------------
 eta = 0.01
 epochs = 10000
@@ -25,27 +25,26 @@ epochs = 10000
 u_e = HeatFlow(1, 1, 1)
 u0 = lambda x: tf.sin(np.pi*x)
 
-Nx = Nt = 10
+N = 10000
 T = L = 1
 
-x, t = create_mesh(np.linspace(0, L, Nx), np.linspace(0, T, Nt))
+NN1 = HeatFlowSolver(u0, N, T, num_neurons=[20], activation_functions=["sigmoid"])
+NN2 = HeatFlowSolver(u0, N, T, num_neurons=[20]*2, activation_functions=["sigmoid"]*2)
+NN3 = HeatFlowSolver(u0, N, T, num_neurons=[20]*3, activation_functions=["sigmoid"]*3)
 
-NN1 = HeatFlowSolver(u0, Nx, Nt, T, num_neurons=[10], activation_functions=["sigmoid"])
-NN2 = HeatFlowSolver(u0, Nx, Nt, T, num_neurons=[10]*2, activation_functions=["sigmoid"]*2)
-NN3 = HeatFlowSolver(u0, Nx, Nt, T, num_neurons=[10]*3, activation_functions=["sigmoid"]*3)
+print("first starting")
+loss_NN1 = NN1.solve_verbose(eta, epochs, num_epochs=10)
+print("second starting")
+loss_NN2 = NN2.solve_verbose(eta, epochs, num_epochs=10)
+print("third starting")
+loss_NN3 = NN3.solve_verbose(eta, epochs, num_epochs=10)
+print()
 
-print("one")
-NN1.solve_verbose(eta, epochs, num_epochs=10, tol=1e-4)
-print("two")
-NN2.solve_verbose(eta, epochs, num_epochs=10, tol=1e-4)
-print("three")
-NN3.solve_verbose(eta, epochs, num_epochs=10, tol=1e-4)
 
-N = 300
-x = np.linspace(0, 1, N)
-
+Nx = 300
+x = np.linspace(0, 1, Nx)
 # Plotting t1
-t = np.zeros(N) + t1
+t = np.zeros(Nx) + t1
 plt.plot(x, u_e(x, t1), color=color_exact, label="exact", linewidth=line_width)
 plt.plot(x, NN1.u(x, t), "--", color=color_NN1, label=labels[0], linewidth=line_width)
 plt.plot(x, NN2.u(x, t), "--", color=color_NN2, label=labels[1], linewidth=line_width)
@@ -63,7 +62,7 @@ else:
 	plt.close()
 
 # Plotting t2
-t = np.zeros(N) + t2
+t = np.zeros(Nx) + t2
 plt.plot(x, u_e(x, t2), color=color_exact, label="exact", linewidth=line_width)
 plt.plot(x, NN1.u(x, t), "--", color=color_NN1, label=labels[0], linewidth=line_width)
 plt.plot(x, NN2.u(x, t), "--", color=color_NN2, label=labels[1], linewidth=line_width)
@@ -80,24 +79,68 @@ if show:
 else:
 	plt.close()
 
-'''
+
 # -------plotting error-------
 
-T = 1
-x_01, t_01, u_01 = pde.solve(T, 0.1)
-x_001, t_001, u_001 = pde.solve(T, 0.01, sample=400)
+Nt = 100
+Nx = 100
+time = np.linspace(0, 1, Nt)
+x = np.linspace(0, 1, Nx)
+# ----------------------------
+
+# mean absolute error
+max_abs_NN1 = np.zeros(Nt)
+max_abs_NN2 = np.zeros(Nt)
+max_abs_NN3 = np.zeros(Nt)
+# mean relative error
+max_rel_NN1 = np.zeros(Nt)
+max_rel_NN2 = np.zeros(Nt)
+max_rel_NN3 = np.zeros(Nt)
+# mean squared error
+MSE_NN1 = 0
+MSE_NN2 = 0
+MSE_NN3 = 0
+for i in range(Nt):
+	u = u_e(x, time[i])
+	t = np.zeros(Nx) + time[i]
+	# mean absolute error
+	error_NN1 = np.abs(u - NN1.u(x, t))
+	error_NN2 = np.abs(u - NN2.u(x, t))
+	error_NN3 = np.abs(u - NN3.u(x, t))
+	max_abs_NN1[i] = np.mean(error_NN1)
+	max_abs_NN2[i] = np.mean(error_NN2)
+	max_abs_NN3[i] = np.mean(error_NN3)
+	# mean squared error
+	MSE_NN1 += np.sum(error_NN1**2)
+	MSE_NN2 += np.sum(error_NN2**2)
+	MSE_NN3 += np.sum(error_NN3**2)
+	# mean relative error
+	error_NN1 = error_NN1[u != 0]
+	error_NN2 = error_NN2[u != 0]
+	error_NN3 = error_NN3[u != 0]
+	u = u[u != 0]
+	max_rel_NN1[i] = np.mean(error_NN1/u)
+	max_rel_NN2[i] = np.mean(error_NN2/u)
+	max_rel_NN3[i] = np.mean(error_NN3/u)
+
+N = Nt*Nx
+MSE_test_NN1 = MSE_NN1/N
+MSE_test_NN2 = MSE_NN2/N
+MSE_test_NN3 = MSE_NN3/N
+
+# mean squared error on train data
+MSE_train_NN1 = NN1.MSE(u_e)
+MSE_train_NN2 = NN2.MSE(u_e)
+MSE_train_NN3 = NN3.MSE(u_e)
+print(f'{"":10}{"COST":19s}{"MSE(TRAIN)":22s}{"MSE(TEST)"}')
+print(f"NN1: {loss_NN1:.7e}  {MSE_train_NN1:20.7e}  {MSE_test_NN1:20.7e}")
+print(f"NN2: {loss_NN2:.7e}  {MSE_train_NN2:20.7e}  {MSE_test_NN2:20.7e}")
+print(f"NN3: {loss_NN3:.7e}  {MSE_train_NN3:20.7e}  {MSE_test_NN3:20.7e}")
 
 
-# max absolute error
-max_01 = np.zeros(len(t_01))
-max_001 = np.zeros(len(t_001))
-for i in range(len(t_01)):
-	max_01[i]  = np.mean(np.abs(u_e(x_01,  t_01[i]) - u_01[i]))
-for i in range(len(t_001)):
-	max_001[i] = np.mean(np.abs(u_e(x_001, t_001[i]) - u_001[i]))
-
-plt.plot(t_001, max_001,  color=color_dx001, label=r"$\Delta x = 0.01$", linewidth=line_width)
-plt.plot(t_01, max_01, color=color_dx01, label=r"$\Delta x = 0.1$", linewidth=line_width)
+plt.plot(time, max_abs_NN1, color=color_NN1, label=labels[0], linewidth=line_width)
+plt.plot(time, max_abs_NN2, color=color_NN2, label=labels[1], linewidth=line_width)
+plt.plot(time, max_abs_NN3, color=color_NN3, label=labels[2], linewidth=line_width)
 plt.legend(fontsize=font)
 plt.xlabel(r"$t$", fontsize=font)
 plt.ylabel("mean absolute error", fontsize=font)
@@ -110,23 +153,10 @@ if show:
 else:
 	plt.close()
 
-# mean relative error
-max_01 = np.zeros(len(t_01))
-for i in range(len(t_01)):
-	u = u_e(x_01,  t_01[i])
-	expected = u[u != 0]
-	computed = u_01[i, u!= 0]
-	max_01[i]  = np.mean(abs(expected - computed)/expected)
 
-max_001 = np.zeros(len(t_001))
-for i in range(len(t_001)):
-	u = u_e(x_001, t_001[i])
-	expected = u[u != 0]
-	computed = u_001[i, u!= 0]
-	max_001[i] = np.mean(abs(expected - computed)/expected)
-
-plt.plot(t_001, max_001,  color=color_dx001, label=r"$\Delta x = 0.01$", linewidth=line_width)
-plt.plot(t_01, max_01, color=color_dx01, label=r"$\Delta x = 0.1$", linewidth=line_width)
+plt.plot(time, max_rel_NN1, color=color_NN1, label=labels[0], linewidth=line_width)
+plt.plot(time, max_rel_NN2, color=color_NN2, label=labels[1], linewidth=line_width)
+plt.plot(time, max_rel_NN3, color=color_NN3, label=labels[2], linewidth=line_width)
 plt.legend(fontsize=font)
 plt.xlabel(r"$t$", fontsize=font)
 plt.ylabel("mean relative error", fontsize=font)
@@ -138,4 +168,3 @@ if show:
 	plt.show()
 else:
 	plt.close()
-'''
