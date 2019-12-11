@@ -18,11 +18,12 @@ class EigenProblem(NeuralNetwork):
 		self.set_t(t)										# default t-value (should be inf)
 		# Metoden under brude nok heller vært add_recurrent_layers....	
 		#self.add_recurrent_layers(1, n, num_neurons, activation_functions)
-		self.add_feed_forward_layers(1, n, num_neurons, activation_functions)
+		self.add_feed_forward_layers(1, n, num_neurons, activation_functions, "linear")
 
 	# normalized eigenvector
 	@property
 	def x(self):
+		self.set_t(1e30)
 		xT = self(self.t)
 		x = tf.transpose(xT)
 		# normalization factor
@@ -32,21 +33,18 @@ class EigenProblem(NeuralNetwork):
 	# eigenvalue
 	@property
 	def E(self):
+		self.set_t(1e30)
 		xT = self(self.t)
 		x = tf.transpose(xT)
 		E = (xT@self.A@x)/(xT@x)
 		return E[0][0]
 
-	def MSE(self, exact_function):
-		u_e = u_e(self.x, self.t)
-
-
-
-	@tf.function
+	#@tf.function
 	def loss(self):
+		self.set_t(np.random.randint(low=0, high=10000, size=1)/3.14)	# bad fix
 		'''
 		Mean Squared Error, evaluating :
-					 lim{t-> inf} x_t = -x + f(x)
+					x_t = -x + f(x)
 		'''
 		with tf.GradientTape(watch_accessed_variables=False) as Dt:
 			Dt.watch(self.t)
