@@ -1,6 +1,8 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, InputLayer 
+from tensorflow.keras.layers import Dense, InputLayer, SimpleRNN
 from tensorflow.keras.optimizers import SGD as GradientDecent
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import initializers
 from time import time
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'		# prevents some complaining
@@ -13,29 +15,43 @@ class NeuralNetwork(tf.keras.Sequential):
 	'''
 	def __init__(self):
 		super().__init__()
-	
+
 	# create layers for feed forward neural network
 	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions):
 		'''
 		create layers for feed forward neural network
 		'''
 		dtype = 'float64'					#default is float32
+		init = initializers.glorot_normal()
 		# adding input layer
 		self.add(InputLayer(input_shape=(features,), dtype=dtype))
 		# adding hidden layers
 		for neurons, f in zip(num_neurons, activation_functions):
-			self.add(Dense(neurons, activation=f, dtype=dtype))
+			self.add(Dense(neurons, activation=f, dtype=dtype, kernel_initializer=init))
 		# adding output layer
-		self.add(Dense(size_output, dtype=dtype))
+		self.add(Dense(size_output, dtype=dtype, kernel_initializer=init))
 
 	# create layers for recurrent neural network
-	def add_recurrent_layers(self):
+	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions):
 		''' 		ANDERS, LES MEG
-		Vi kan se om vi kan prøve å få til dette. 
+		Vi kan se om vi kan prøve å få til dette.
 		Jeg har prøvd litt, men fikk ikke helt til...
 		tensorflow har recurrent layers som vi burde kunne få til å bruke
 		'''
-		pass
+		dtype = 'float32'					#default is float32
+		# adding input layer
+		#self.add(Dense(1,input_shape=(features,), dtype=dtype))
+		# adding hidden layers
+		self.add(InputLayer(input_shape=(6, 1), dtype=dtype))
+		#print(self.summary())
+		#input()
+		for neurons, f in zip(num_neurons, activation_functions):
+			self.add(SimpleRNN(neurons, return_sequences=True,activation=f, dtype=dtype))
+		self.add(SimpleRNN(6, dtype=dtype))
+		print(self.summary())
+		input()
+		# adding output layer
+		#self.add(SimpleRNN(size_output, dtype=dtype))
 
 	@tf.function
 	def loss(self):
@@ -49,7 +65,7 @@ class NeuralNetwork(tf.keras.Sequential):
 	@tf.function
 	def back_propagation(self):
 		'''
-		back propagation in neural network 
+		back propagation in neural network
 		using loss function specified by sub-class
 		trainable variables : weights and bias of layers
 		'''
@@ -62,7 +78,7 @@ class NeuralNetwork(tf.keras.Sequential):
 
 	# solve differential equation
 	def solve(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
-		self.optimizer = GradientDecent(learning_rate=learning_rate)
+		self.optimizer = Adam(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			self.train(epoch)
 			loss = self.loss().numpy()
@@ -88,9 +104,6 @@ class NeuralNetwork(tf.keras.Sequential):
 				break
 		return loss
 
-	# Convert 1D-array to tensor 
+	# Convert 1D-array to tensor
 	def array_to_tensor(self, array):
 		return tf.reshape(tf.convert_to_tensor(array), shape=(-1, 1))
-
-
-

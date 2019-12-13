@@ -2,7 +2,6 @@ import tensorflow as tf
 from neural_network import NeuralNetwork
 import numpy as np
 
-
 class EigenProblem(NeuralNetwork):
 	'''
 	Inherits form NerualNetwork, built on keras (tensorflow) layers.
@@ -10,14 +9,18 @@ class EigenProblem(NeuralNetwork):
 				Ax = Ex,
 	for real symmetric matrix A.
 	'''
-	def __init__(self, A, num_neurons=[], activation_functions=[], t=1e30):
+	def __init__(self, A, num_neurons=[], activation_functions=[], t=100):
 		super().__init__()
+
 		n = len(A)
-		self.A = tf.convert_to_tensor(A)					# symmetric n x n matrix 
+		self.A = tf.convert_to_tensor(A)					# symmetric n x n matrix
 		self.I = tf.linalg.LinearOperatorIdentity(n, dtype='float64').to_dense()
-		self.set_t(t)										# default t-value (should be inf)
-		# Metoden under brude nok heller vært add_recurrent_layers....	
+
+		self.set_t(t)
+								# default t-value (should be inf)
+		# Metoden under brude nok heller vært add_recurrent_layers....
 		self.add_feed_forward_layers(1, n, num_neurons, activation_functions)
+		#self.add_recurrent_layers(1, n, num_neurons, activation_functions)
 
 	# normalized eigenvector
 	@property
@@ -27,7 +30,7 @@ class EigenProblem(NeuralNetwork):
 		# normalization factor
 		c = np.sqrt((xT@x)[0][0])
 		return x/c
-	
+
 	# eigenvalue
 	@property
 	def E(self):
@@ -43,10 +46,12 @@ class EigenProblem(NeuralNetwork):
 		Mean Squared Error, evaluating :
 					 lim{t-> inf} x_t = -x + f(x)
 		'''
+
 		with tf.GradientTape(watch_accessed_variables=False) as Dt:
 			Dt.watch(self.t)
 			xT = self(self.t)
 			x = tf.transpose(xT)
+
 		Dt_x = Dt.jacobian(x, self.t)[:, 0, 0, 0]
 		x_t = -x[:,0] + self.f(x)[:,0]
 		return tf.losses.mean_squared_error(x_t, Dt_x)
@@ -64,5 +69,3 @@ class EigenProblem(NeuralNetwork):
 	# set input for the network
 	def set_t(self, t):
 		self.t = self.array_to_tensor([float(t)])
-
-	
