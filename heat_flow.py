@@ -1,4 +1,6 @@
 import autograd.numpy as np
+# Testing used autograd, and therefore requires numpy to be imported from autograd.
+
 
 class HeatFlow:
 	''' 
@@ -15,23 +17,33 @@ class HeatFlow:
 		self.w =  np.pi*n/L
 		self.ll = (self.w/c)**2
 
-	# u(x, t) = F(x)G(t)
 	def __call__(self, x, t):
+		'''
+		u(x, t) = F(x)G(t)
+		'''
 		return self.F(x)*self.G(t)
 
-	# Separation of variables: x-dependent
 	def F(self, x):
+		'''
+		Separation of variables: x-dependent
+		'''
 		return np.sin(self.w*x)
 
-	# Separation of variables: t-dependent
 	def G(self, t):
+		'''
+		Separation of variables: t-dependent
+		'''
 		return np.exp(-self.ll*t)
 
-	# u_xx : double derivative with respect to x
 	def xx(self, x, t):
+		'''
+		u_xx : double derivative with respect to x
+		'''
 		return -self.w**2*self.F(x)*self.G(t)
 
-	# u_t : derivative with respect to t
 	def t(self, x, t):
+		'''
+		u_t : derivative with respect to t
+		'''
 		return -self.ll*self.F(x)*self.G(t)
 

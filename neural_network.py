@@ -16,8 +16,8 @@ class NeuralNetwork(tf.keras.Sequential):
 	def __init__(self):
 		super().__init__()
 
-	# create layers for feed forward neural network
-	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions):
+
+	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		'''
 		create layers for feed forward neural network
 		'''
@@ -29,31 +29,24 @@ class NeuralNetwork(tf.keras.Sequential):
 		for neurons, f in zip(num_neurons, activation_functions):
 			self.add(Dense(neurons, activation=f, dtype=dtype, kernel_initializer=init))
 		# adding output layer
-		self.add(Dense(size_output, dtype=dtype, kernel_initializer=init))
+		self.add(Dense(size_output, dtype=dtype, activation=output_activaton))
 
-	# create layers for recurrent neural network
-	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions):
-		''' 		ANDERS, LES MEG
-		Vi kan se om vi kan prøve å få til dette.
-		Jeg har prøvd litt, men fikk ikke helt til...
-		tensorflow har recurrent layers som vi burde kunne få til å bruke
+
+	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		'''
-		dtype = 'float32'					#default is float32
+		create layers for recurrent neural network
+		'''
+		dtype = 'float64'					#default is float32
 		# adding input layer
-		#self.add(Dense(1,input_shape=(features,), dtype=dtype))
+		self.add(InputLayer(input_shape=(features,), dtype=dtype))
 		# adding hidden layers
-		self.add(InputLayer(input_shape=(6, 1), dtype=dtype))
-		#print(self.summary())
-		#input()
 		for neurons, f in zip(num_neurons, activation_functions):
-			self.add(SimpleRNN(neurons, return_sequences=True,activation=f, dtype=dtype))
-		self.add(SimpleRNN(6, dtype=dtype))
-		print(self.summary())
-		input()
+			self.add(SimpleRNN(neurons, activation=f, dtype=dtype))
 		# adding output layer
-		#self.add(SimpleRNN(size_output, dtype=dtype))
+		self.add(SimmpleRNN(size_output, dtype=dtype))
+		print("Klarte å opprette!")
 
-	@tf.function
+
 	def loss(self):
 		'''
 		Abstract method for loss (or cost) function:
@@ -71,12 +64,15 @@ class NeuralNetwork(tf.keras.Sequential):
 		'''
 		self.optimizer.minimize(self.loss, self.trainable_variables)
 
-	# one epoch of back propagation
+
 	def train(self, epoch):
+		'''
+		one epoch of back propagation
+		'''
 		for n in range(epoch):
 			self.back_propagation()
 
-	# solve differential equation
+
 	def solve(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
 		self.optimizer = Adam(learning_rate=learning_rate)
 		for n in range(num_epochs):
@@ -89,9 +85,12 @@ class NeuralNetwork(tf.keras.Sequential):
 				break
 		return loss
 
-	# talkative solving of differential equation
+
 	def solve_verbose(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
-		self.optimizer = GradientDecent(learning_rate=learning_rate)
+		'''
+		talkative solving of differential equation
+		'''
+		self.optimizer = Adam(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			start_time = time()
 			self.train(epoch)
@@ -104,6 +103,9 @@ class NeuralNetwork(tf.keras.Sequential):
 				break
 		return loss
 
-	# Convert 1D-array to tensor
+
 	def array_to_tensor(self, array):
+		'''
+		convert 1D-array to tensor
+		'''
 		return tf.reshape(tf.convert_to_tensor(array), shape=(-1, 1))

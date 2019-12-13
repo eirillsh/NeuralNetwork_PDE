@@ -26,6 +26,9 @@ def create_symmetric_matrix(n):
 	Q =  2*np.random.ranf((n, n)) - 1
 	return (Q.T + Q)/2
 
+
+#print(np.random.randint(low=0, high=1000000, size=100)/3.14)
+
 n = 6
 A = create_symmetric_matrix(n)
 eigs = []
