@@ -14,10 +14,11 @@ color_NN2 = 'cornflowerblue'
 color_NN3 = 'forestgreen'
 color_exact = 'darkgray'
 
-show = True
+show = False
 t1 = 0.05
-t2 = 0.5
-labels = ["NN1", "NN2", "NN3"]		# husk å fikse når NN-ene er bestemt
+t2 = 0.50
+t3 = 0.75
+labels = [r"$l = 1$", r"$l = 2$", r"$l = 3$"]
 # ---------------------------
 eta = 0.01
 epochs = 10000
@@ -39,6 +40,7 @@ loss_NN2 = NN2.solve_verbose(eta, epochs, num_epochs=10)
 print("third starting")
 loss_NN3 = NN3.solve_verbose(eta, epochs, num_epochs=10)
 print()
+
 
 
 Nx = 300
@@ -74,6 +76,24 @@ plt.xticks(fontsize=font)
 plt.yticks(fontsize=font)
 plt.tight_layout()
 plt.savefig(path + "t2.pdf")
+if show:
+	plt.show()
+else:
+	plt.close()
+
+# Plotting t3
+t = np.zeros(Nx) + t3
+plt.plot(x, u_e(x, t3), color=color_exact, label="exact", linewidth=line_width)
+plt.plot(x, NN1.u(x, t), "--", color=color_NN1, label=labels[0], linewidth=line_width)
+plt.plot(x, NN2.u(x, t), "--", color=color_NN2, label=labels[1], linewidth=line_width)
+plt.plot(x, NN3.u(x, t), "--", color=color_NN3, label=labels[2], linewidth=line_width)
+plt.legend(fontsize=font)
+plt.xlabel(r"$x$", fontsize=font)
+plt.ylabel(r"$u(x, t=%.2f)$"%t3, fontsize=font)
+plt.xticks(fontsize=font)
+plt.yticks(fontsize=font)
+plt.tight_layout()
+plt.savefig(path + "t3.pdf")
 if show:
 	plt.show()
 else:

@@ -14,7 +14,7 @@ class NeuralNetwork(tf.keras.Sequential):
 	def __init__(self):
 		super().__init__()
 	
-	# create layers for feed forward neural network
+
 	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		'''
 		create layers for feed forward neural network
@@ -28,10 +28,10 @@ class NeuralNetwork(tf.keras.Sequential):
 		# adding output layer
 		self.add(Dense(size_output, dtype=dtype, activation=output_activaton))
 
-	# create layers for recurrent neural network
-	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions):
+
+	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		'''
-		create layers for feed forward neural network
+		create layers for recurrent neural network
 		'''
 		dtype = 'float64'					#default is float32
 		# adding input layer
@@ -43,7 +43,7 @@ class NeuralNetwork(tf.keras.Sequential):
 		self.add(SimmpleRNN(size_output, dtype=dtype))
 		print("Klarte å opprette!")
 
-	@tf.function
+
 	def loss(self):
 		'''
 		Abstract method for loss (or cost) function:
@@ -61,13 +61,19 @@ class NeuralNetwork(tf.keras.Sequential):
 		'''
 		self.optimizer.minimize(self.loss, self.trainable_variables)
 
-	# one epoch of back propagation
+
 	def train(self, epoch):
+		'''
+		one epoch of back propagation
+		'''
 		for n in range(epoch):
 			self.back_propagation()
 
-	# solve differential equation
+
 	def solve(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
+		'''
+		solve differential equation
+		'''
 		self.optimizer = GradientDecent(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			self.train(epoch)
@@ -79,8 +85,11 @@ class NeuralNetwork(tf.keras.Sequential):
 				break
 		return loss
 
-	# talkative solving of differential equation
+
 	def solve_verbose(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
+		'''
+		talkative solving of differential equation
+		'''
 		self.optimizer = GradientDecent(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			start_time = time()
@@ -94,8 +103,11 @@ class NeuralNetwork(tf.keras.Sequential):
 				break
 		return loss
 
-	# Convert 1D-array to tensor 
+
 	def array_to_tensor(self, array):
+		'''
+		convert 1D-array to tensor 
+		'''
 		return tf.reshape(tf.convert_to_tensor(array), shape=(-1, 1))
 
 

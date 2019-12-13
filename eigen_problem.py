@@ -20,28 +20,30 @@ class EigenProblem(NeuralNetwork):
 		#self.add_recurrent_layers(1, n, num_neurons, activation_functions)
 		self.add_feed_forward_layers(1, n, num_neurons, activation_functions, "linear")
 
-	# normalized eigenvector
+
 	@property
 	def x(self):
-		self.set_t(1e30)
+		'''
+		normalized eigenvector
+		'''
 		xT = self(self.t)
 		x = tf.transpose(xT)
-		# normalization factor
 		c = np.sqrt((xT@x)[0][0])
 		return x/c
 	
-	# eigenvalue
+
 	@property
 	def E(self):
-		self.set_t(1e30)
+		'''
+		eigenvalue
+		'''
 		xT = self(self.t)
 		x = tf.transpose(xT)
 		E = (xT@self.A@x)/(xT@x)
 		return E[0][0]
 
-	#@tf.function
+
 	def loss(self):
-		self.set_t(np.random.randint(low=0, high=10000, size=1)/3.14)	# bad fix
 		'''
 		Mean Squared Error, evaluating :
 					x_t = -x + f(x)
@@ -54,18 +56,24 @@ class EigenProblem(NeuralNetwork):
 		x_t = -x[:,0] + self.f(x)[:,0]
 		return tf.losses.mean_squared_error(x_t, Dt_x)
 
-	#f(x) = [x.T x A + (1 - x.T A x) I] x
+	
 	def f(self, x):
 		xT = tf.transpose(x)
 		return (xT@x*self.A + (1 - xT@self.A@x)*self.I)@x
 
-	# asserting: Ax = Ex
+
 	def error(self):
+		'''
+		asserting: Ax = Ex
+		'''
 		x = self.x
 		return self.A@x - self.E@x
 
-	# set input for the network
+
 	def set_t(self, t):
+		'''
+		set input for the network
+		'''
 		self.t = self.array_to_tensor([float(t)])
 
 	

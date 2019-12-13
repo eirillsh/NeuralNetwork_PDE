@@ -18,30 +18,41 @@ class HeatFlowSolver(NeuralNetwork):
 		self.u0 = u0								# initial condition
 		self.cc = tf.constant(c*c, dtype='float64')	# constant in PDE
 		self.L = tf.constant(L, dtype='float64')	# upper bound on x
-		# Erstatte med random tall??
 		x, t = create_random_x_t(N, L, T)
 		self.x, self.t = self.array_to_tensor(x), self.array_to_tensor(t)
 		self.add_feed_forward_layers(2, 1, num_neurons, activation_functions, "linear")
 
-	# solution function, used for predicting
+
 	def u(self, x, t):
+		'''
+		solution function, used for predicting
+		'''
 		x, t = self.array_to_tensor(x), self.array_to_tensor(t)
 		return self.trial_function(x, t).numpy()[:, 0]
 
-	# trial function, used when training
+
 	def trial_function(self, x, t):
+		'''
+		trial function, used when training
+		'''
 		X = tf.concat([x, t], 1)
 		return self.u0(x) + x*(self.L - x)*t*self(X, training=False)
 
-	# mean squared error 
+
 	def MSE(self, exact_function):
-		u_e = exact_function(self.x, self.t)
+		'''
+		mean squared error, given exact solution function
+		'''
+		u_e = exact_function(self.x, self.t)[:, 0]
 		u = self.trial_function(self.x, self.t).numpy()[:, 0]
 		return np.mean((u_e - u)**2)
 
-	# MSE: u_xx = c^2 u_t
-	#@tf.function
+
 	def loss(self):
+		'''
+		loss function : Mean squared error evaluating 
+						u_xx = c^2 u_t
+		'''
 		with tf.GradientTape(watch_accessed_variables=False) as velocity:
 			velocity.watch(self.x)
 			with tf.GradientTape(watch_accessed_variables=False) as position:
