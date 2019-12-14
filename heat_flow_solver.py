@@ -14,13 +14,12 @@ class HeatFlowSolver(NeuralNetwork):
 							-> t in [0, inf)
 	'''
 	def __init__(self, u0, N, T, num_neurons=[], activation_functions=[], L=1, c=1):
-		super().__init__()
+		super().__init__(2, 1, num_neurons, activation_functions, "linear")
 		self.u0 = u0								# initial condition
 		self.cc = tf.constant(c*c, dtype='float64')	# constant in PDE
 		self.L = tf.constant(L, dtype='float64')	# upper bound on x
 		x, t = create_random_x_t(N, L, T)
 		self.x, self.t = self.array_to_tensor(x), self.array_to_tensor(t)
-		self.add_feed_forward_layers(2, 1, num_neurons, activation_functions, "linear")
 
 
 	def u(self, x, t):
@@ -37,7 +36,6 @@ class HeatFlowSolver(NeuralNetwork):
 		'''
 		X = tf.concat([x, t], 1)
 		return self.u0(x) + x*(self.L - x)*t*self(X, training=False)
-
 
 	def MSE(self, exact_function):
 		'''
