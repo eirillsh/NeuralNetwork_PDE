@@ -10,15 +10,11 @@ class EigenProblem(NeuralNetwork):
 	for real symmetric matrix A.
 	'''
 	def __init__(self, A, num_neurons=[], activation_functions=[], t=100):
-		super().__init__()
-
+		super().__init__(1, n, num_neurons, activation_functions, "linear")
 		n = len(A)
 		self.A = tf.convert_to_tensor(A)					# symmetric n x n matrix
 		self.I = tf.linalg.LinearOperatorIdentity(n, dtype='float64').to_dense()
 		self.set_t(t)										# default t-value (should be inf)
-		# Metoden under brude nok heller vært add_recurrent_layers....
-		#self.add_recurrent_layers(1, n, num_neurons, activation_functions)
-		self.add_feed_forward_layers(1, n, num_neurons, activation_functions, "linear")
 
 
 	@property

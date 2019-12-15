@@ -1,8 +1,5 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, InputLayer, SimpleRNN
-from tensorflow.keras.optimizers import SGD as GradientDecent
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import initializers
 from time import time
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'		# prevents some complaining
@@ -13,16 +10,11 @@ class NeuralNetwork(tf.keras.Sequential):
 	Abstract artificial neural network built on keras (tensorflow) layers.
 	Back propagation using gradient decent.
 	'''
-	def __init__(self):
+	def __init__(self, features, size_output, num_neurons, activation_functions, output_activaton):
 		super().__init__()
-
-
-	def add_feed_forward_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
-		'''
-		create layers for feed forward neural network
-		'''
+		#create layers for feed forward neural network
 		dtype = 'float64'					#default is float32
-		init = initializers.glorot_normal()
+		init = tf.keras.initializers.glorot_normal()
 		# adding input layer
 		self.add(InputLayer(input_shape=(features,), dtype=dtype))
 		# adding hidden layers
@@ -30,21 +22,6 @@ class NeuralNetwork(tf.keras.Sequential):
 			self.add(Dense(neurons, activation=f, dtype=dtype, kernel_initializer=init))
 		# adding output layer
 		self.add(Dense(size_output, dtype=dtype, activation=output_activaton))
-
-
-	def add_recurrent_layers(self, features, size_output, num_neurons, activation_functions, output_activaton):
-		'''
-		create layers for recurrent neural network
-		'''
-		dtype = 'float64'					#default is float32
-		# adding input layer
-		self.add(InputLayer(input_shape=(features,), dtype=dtype))
-		# adding hidden layers
-		for neurons, f in zip(num_neurons, activation_functions):
-			self.add(SimpleRNN(neurons, activation=f, dtype=dtype))
-		# adding output layer
-		self.add(SimmpleRNN(size_output, dtype=dtype))
-		print("Klarte å opprette!")
 
 
 	def loss(self):
@@ -74,7 +51,7 @@ class NeuralNetwork(tf.keras.Sequential):
 
 
 	def solve(self, learning_rate, epoch, num_epochs=10, tol=1e-16):
-		self.optimizer = Adam(learning_rate=learning_rate)
+		self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			self.train(epoch)
 			loss = self.loss().numpy()
@@ -90,7 +67,7 @@ class NeuralNetwork(tf.keras.Sequential):
 		'''
 		talkative solving of differential equation
 		'''
-		self.optimizer = Adam(learning_rate=learning_rate)
+		self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 		for n in range(num_epochs):
 			start_time = time()
 			self.train(epoch)
