@@ -7,8 +7,8 @@ from tensorflow.keras import layers
 def test(A):
 	N = 2
 	NN = EigenProblem(A, [10]*N, ["sigmoid"]*N)
-	eta = 0.05
-	epoch = 3000
+	eta = 0.1
+	epoch = 4000
 	loss = NN.solve(eta, epoch, num_epochs=10)
 	#print(f"EIGENVALUE  {NN.E:15.8f}  {loss:20.1e}")
 	#E, X = np.linalg.eigh(A)
@@ -27,21 +27,20 @@ def create_symmetric_matrix(n):
 	return (Q.T + Q)/2
 
 
-#print(np.random.randint(low=0, high=1000000, size=100)/3.14)
 
-n = 6
+n = 8
 A = create_symmetric_matrix(n)
+
 eigs = []
 eigs.append(test(A))
 print("Found eigenvalue number 1 of", n)
 i = 2
 
-
 while True:
 	E = test(A)
-	if len(eigs) == 6:
+	if len(eigs) == n:
 		break
-	elif np.any(np.abs(eigs - E) < 1e-4):
+	elif np.any(np.abs(eigs - E) < 1e-2):
 		pass
 	else:
 		print("Found eigenvalue number", i, "of", n)
