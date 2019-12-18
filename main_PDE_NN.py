@@ -3,6 +3,7 @@ import numpy as np
 from heat_flow import HeatFlow
 from heat_flow_solver import HeatFlowSolver, create_mesh
 import matplotlib.pyplot as plt
+from time import time
 # -----SETTINGS FOR PLOTS-----
 line_width = 3
 font = 15
@@ -18,10 +19,11 @@ show = False
 t1 = 0.05
 t2 = 0.75
 t3 = 0.50
-labels = [r"$l = 1$", r"$l = 2$", r"$l = 3$"]
+labels = [r"$NN_1$", r"$NN_2$", r"$NN_3$"]
 # ---------------------------
 eta = 0.01
-epochs = 10000
+epochs = 2000
+num = 10 
 
 u_e = HeatFlow(1, 1, 1)
 u0 = lambda x: tf.sin(np.pi*x)
@@ -29,16 +31,22 @@ u0 = lambda x: tf.sin(np.pi*x)
 N = 10000
 T = L = 1
 
-NN1 = HeatFlowSolver(u0, N, T, num_neurons=[20], activation_functions=["sigmoid"])
+NN1 = HeatFlowSolver(u0, N, T, num_neurons=[20]*2, activation_functions=["sigmoid"]*2)
 NN2 = HeatFlowSolver(u0, N, T, num_neurons=[20]*2, activation_functions=["sigmoid"]*2)
-NN3 = HeatFlowSolver(u0, N, T, num_neurons=[20]*3, activation_functions=["sigmoid"]*3)
+NN3 = HeatFlowSolver(u0, N, T, num_neurons=[20]*2, activation_functions=["sigmoid"]*2)
 
 print("first starting")
-loss_NN1 = NN1.solve_verbose(eta, epochs, num_epochs=10)
+start_time = time()
+loss_NN1 = NN1.solve_verbose(eta, epochs, num_epochs=num)
+print(f"{float(time() - start_time)/60 :20.5f} min")
 print("second starting")
-loss_NN2 = NN2.solve_verbose(eta, epochs, num_epochs=10)
+start_time = time()
+loss_NN2 = NN2.solve_verbose(eta, epochs, num_epochs=num)
+print(f"{float(time() - start_time)/60 :20.5f} min")
 print("third starting")
-loss_NN3 = NN3.solve_verbose(eta, epochs, num_epochs=10)
+start_time = time()
+loss_NN3 = NN3.solve_verbose(eta, epochs, num_epochs=num)
+print(f"{float(time() - start_time)/60 :20.5f} min")
 print()
 
 
@@ -163,7 +171,7 @@ plt.plot(time, max_abs_NN2, color=color_NN2, label=labels[1], linewidth=line_wid
 plt.plot(time, max_abs_NN3, color=color_NN3, label=labels[2], linewidth=line_width)
 plt.legend(fontsize=font)
 plt.xlabel(r"$t$", fontsize=font)
-plt.ylabel("mean absolute error", fontsize=font)
+plt.ylabel(r"$\bar{E}(t)$", fontsize=font)
 plt.xticks(fontsize=font)
 plt.yticks(fontsize=font)
 plt.tight_layout()
@@ -179,7 +187,7 @@ plt.plot(time, max_rel_NN2, color=color_NN2, label=labels[1], linewidth=line_wid
 plt.plot(time, max_rel_NN3, color=color_NN3, label=labels[2], linewidth=line_width)
 plt.legend(fontsize=font)
 plt.xlabel(r"$t$", fontsize=font)
-plt.ylabel("mean relative error", fontsize=font)
+plt.ylabel(r"$\bar{E}_{rel}(t)$", fontsize=font)
 plt.xticks(fontsize=font)
 plt.yticks(fontsize=font)
 plt.tight_layout()

@@ -1,1 +1,1 @@
-# NeuralNetwork_PDE
+# Solving Partial Differential Equations using Artificial Neural Networks
