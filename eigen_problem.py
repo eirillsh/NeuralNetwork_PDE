@@ -9,9 +9,9 @@ class EigenProblem(NeuralNetwork):
 				Ax = Ex,
 	for real symmetric matrix A.
 	'''
-	def __init__(self, A, num_neurons=[], activation_functions=[], t=100):
-		super().__init__(1, n, num_neurons, activation_functions, "linear")
+	def __init__(self, A, num_neurons=[], activation_functions=[], t=300):
 		n = len(A)
+		super().__init__(1, n, num_neurons, activation_functions, "linear")
 		self.A = tf.convert_to_tensor(A)					# symmetric n x n matrix
 		self.I = tf.linalg.LinearOperatorIdentity(n, dtype='float64').to_dense()
 		self.set_t(t)										# default t-value (should be inf)
